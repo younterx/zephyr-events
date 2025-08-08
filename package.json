@@ -2,14 +2,14 @@
   "name": "zephyr-events",
   "version": "1.0.0",
   "description": "Ultra-fast ES2023 event emitter with 889B bundle size and race-condition safety",
-  "main": "dist/mitt.js",
-  "module": "dist/mitt.mjs",
+  "main": "dist/zephyr-events.js",
+  "module": "dist/zephyr-events.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/mitt.mjs",
-      "require": "./dist/mitt.js"
+      "import": "./dist/zephyr-events.mjs",
+      "require": "./dist/zephyr-events.js"
     }
   },
   "files": [

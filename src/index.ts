@@ -31,7 +31,7 @@ export interface Emitter<Events extends Record<EventType, unknown>> {
 	emit<Key extends keyof Events>(type: undefined extends Events[Key] ? Key : never): void;
 }
 
-export default function mitt<Events extends Record<EventType, unknown>>(
+export default function zephyrEvents<Events extends Record<EventType, unknown>>(
 	all?: EventHandlerMap<Events>
 ): Emitter<Events> {
 	type GenericEventHandler = Handler<Events[keyof Events]> | WildcardHandler<Events>;

@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-08-08T21:48:11.332Z",
+  "nodeVersion": "v23.10.0",
+  "platform": "darwin",
+  "arch": "arm64",
+  "results": {
+    "Emitter Creation": {
+      "opsPerSecond": 10544259,
+      "timePerOp": 0.00009483834
+    },
+    "Event Subscription": {
+      "opsPerSecond": 9194,
+      "timePerOp": 0.10876140208000001
+    },
+    "Single Handler Emit": {
+      "opsPerSecond": 33687989,
+      "timePerOp": 0.00002968417
+    },
+    "10 Handlers Emit": {
+      "opsPerSecond": 9316915,
+      "timePerOp": 0.00010733166000000001
+    },
+    "100 Handlers Emit": {
+      "opsPerSecond": 1568699,
+      "timePerOp": 0.00063747085
+    },
+    "Wildcard Emit": {
+      "opsPerSecond": 26121316,
+      "timePerOp": 0.00003828291
+    },
+    "Unsubscribe": {
+      "opsPerSecond": 143537923,
+      "timePerOp": 0.000006966799999999999
+    },
+    "Off Method": {
+      "opsPerSecond": 194174757,
+      "timePerOp": 0.00000515
+    },
+    "Mixed Operations": {
+      "opsPerSecond": 7168372,
+      "timePerOp": 0.00013950167999999998
+    },
+    "Memory Stress": {
+      "opsPerSecond": 130,
+      "timePerOp": 7.680300792
+    }
+  }
+}

@@ -32,23 +32,23 @@ const code = minify(fs.readFileSync(inputFile, 'utf8'));
 const esmCode = code
   .replace('"use strict";Object.defineProperty(exports,"__esModule",{value: true});exports.default=', 'export default ')
   .replace(/module\.exports\s*=/, 'export default');
-fs.writeFileSync(path.join(outputDir, 'mitt.mjs'), esmCode);
+fs.writeFileSync(path.join(outputDir, 'zephyr-events.mjs'), esmCode);
 
 // Create CommonJS version (.js) 
-fs.writeFileSync(path.join(outputDir, 'mitt.js'), code);
+fs.writeFileSync(path.join(outputDir, 'zephyr-events.js'), code);
 
 // Create UMD version
 const umdCode = `(function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (global = global || self, global.mitt = factory());
+  (global = global || self, global.zephyrEvents = factory());
 }(this, (function () { 'use strict';
   ${code.replace('module.exports =', 'return')}
 })));`;
 
-fs.writeFileSync(path.join(outputDir, 'mitt.umd.js'), umdCode);
+fs.writeFileSync(path.join(outputDir, 'zephyr-events.umd.js'), umdCode);
 
 console.log('Built:');
-console.log(`  ${fs.statSync(path.join(outputDir, 'mitt.js')).size}B: mitt.js`);
-console.log(`  ${fs.statSync(path.join(outputDir, 'mitt.mjs')).size}B: mitt.mjs`);  
-console.log(`  ${fs.statSync(path.join(outputDir, 'mitt.umd.js')).size}B: mitt.umd.js`);
+console.log(`  ${fs.statSync(path.join(outputDir, 'zephyr-events.js')).size}B: zephyr-events.js`);
+console.log(`  ${fs.statSync(path.join(outputDir, 'zephyr-events.mjs')).size}B: zephyr-events.mjs`);  
+console.log(`  ${fs.statSync(path.join(outputDir, 'zephyr-events.umd.js')).size}B: zephyr-events.umd.js`);
