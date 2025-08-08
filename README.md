@@ -6,11 +6,9 @@ Ultra-fast ES2023 event emitter with **905B** bundle size and race-condition saf
 [![Bundle Size](https://img.shields.io/badge/size-905B-brightgreen.svg)](https://bundlephobia.com/package/zephyr-events)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
 
-## 🙏 Acknowledgments
+---
 
-**Zephyr Events** is a **heavy modernization and performance upgrade** of the original [mitt](https://github.com/developit/mitt) package by [Jason Miller](https://github.com/developit). Thanks for the foundational work! 🎉
-
-## ⚡ Features
+## ⚡ Key Features
 
 - **🔥 Ultra Fast**: 33M+ operations/second with native Set/Map optimizations
 - **🪶 Tiny Bundle**: Only 905B minified, 0 dependencies  
@@ -19,11 +17,15 @@ Ultra-fast ES2023 event emitter with **905B** bundle size and race-condition saf
 - **📦 Tree Shakeable**: ES modules with proper exports
 - **🔧 TypeScript**: Full type safety with generics and strict types
 
+---
+
 ## 📥 Installation
 
 ```bash
 npm install zephyr-events
 ```
+
+---
 
 ## 🚀 Quick Start
 
@@ -50,7 +52,9 @@ emitter.emit('user', { id: 1, name: 'Alice' });
 unsubscribe();
 ```
 
-## 🎨 API
+---
+
+## 🎨 API Reference
 
 ### `zephyrEvents<Events>()`
 
@@ -99,7 +103,11 @@ emitter.emit('message', 'Hello World!');
 emitter.emit('data', { value: 42 });
 ```
 
-## 🏗️ Architecture
+---
+
+## 🏗️ Technical Details
+
+### Architecture
 
 Zephyr Events uses a **dual-storage architecture** for maximum performance:
 
@@ -107,14 +115,7 @@ Zephyr Events uses a **dual-storage architecture** for maximum performance:
 - **Array snapshots**: Fast iteration with race-condition safety
 - **ES2023 optimizations**: Native optional chaining and nullish coalescing
 
-## ⚡ Performance
-
-```typescript
-// Benchmark: Comprehensive performance testing
-// Result: Up to 33M+ operations/second
-```
-
-## 🔒 Race-Condition Safety
+### Race-Condition Safety
 
 Handlers are executed from immutable snapshots:
 
@@ -124,17 +125,19 @@ emitter.on('test', function selfRemover() {
 });
 ```
 
-## 🌟 ES2023 Features
+### ES2023 Features
 
 - **Nullish coalescing**: `all ??= new Map()`
 - **Optional chaining**: `handlers?.size`
 - **Spread operators**: `[...handlers]` for fast snapshots
 
-## 📦 Bundle Formats
+### Bundle Formats
 
 - **ESM**: `dist/zephyr-events.mjs` (905B)
 - **CommonJS**: `dist/zephyr-events.js` (977B) 
 - **UMD**: `dist/zephyr-events.umd.js` (1.3KB)
+
+---
 
 ## 🆚 Comparison
 
@@ -148,15 +151,7 @@ emitter.on('test', function selfRemover() {
 
 *\*Based on original mitt package by Jason Miller*
 
-## 🤝 Contributing
-
-Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## 📄 License
-
-MIT © [ebogdum](https://github.com/ebogdum)
-
-Original mitt: MIT © [Jason Miller](https://github.com/developit)
+---
 
 ## 🚀 Performance Benchmarks
 
@@ -199,4 +194,18 @@ Comprehensive performance benchmarks on **Apple Silicon M-series (ARM64)** with 
 
 ---
 
-*Built with ❤️ and ES2023 • Inspired by mitt*
+## 🙏 Acknowledgments
+
+**Zephyr Events** is a heavy modernization and performance upgrade of the original [mitt](https://github.com/developit/mitt) package by [Jason Miller](https://github.com/developit). Thanks for the foundational work!
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## 📄 License
+
+MIT © [ebogdum](https://github.com/ebogdum)
+
+Original mitt: MIT © [Jason Miller](https://github.com/developit)

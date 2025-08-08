@@ -1,6 +1,6 @@
 {
   "name": "zephyr-events",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "Ultra-fast ES2023 event emitter with 889B bundle size and race-condition safety",
   "main": "dist/zephyr-events.js",
   "module": "dist/zephyr-events.mjs",
@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ebogdum/zephyr-events.git"
+    "url": "git+https://github.com/ebogdum/zephyr-events.git"
   },
   "keywords": [
     "events",

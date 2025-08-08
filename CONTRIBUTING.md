@@ -1,6 +1,6 @@
 # Contributing to Zephyr Events
 
-Thank you for your interest in contributing to **Zephyr Events**! 🌪️ 
+Thank you for your interest in contributing to **Zephyr Events**. 
 
 This guide will help you get started with contributing to our ultra-fast event emitter library.
 
@@ -230,6 +230,4 @@ Special thanks to:
 
 ---
 
-**Ready to contribute?** 🚀 Start by forking the repo and making your first change!
-
-*Happy coding!* ⚡
+Ready to contribute? Start by forking the repo and making your first change!
